@@ -1,0 +1,471 @@
+ <!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.1/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <title>Monitoring Suhu, Kelembapan, Jarak & Kendali LED Berbasis Web</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-image: url(bakcground-web.jpg);
+            background-size: cover; /* Pastikan gambar menutupi seluruh area */
+            background-position: center; /* Posisikan gambar di tengah */
+            /* background: linear-gradient(135deg, #b0c4de 0%, #4682b4 100%); Warna abu-abu ke biru */
+            padding: 0px;
+            margin: 0;
+        }
+  
+        .bento-box {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            background: rgba(255, 255, 255, .1); /* Sedikit transparan */
+            border-radius: 30px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            width: fit-content;
+            max-width: 90%;
+            transition: transform 0.3s ease;
+        }
+  
+        .bento-box:hover {
+            transform: translateY(-5px);
+        }
+  
+        .kotak {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            min-width: 200px;
+            display: flex;
+            flex-direction: column;
+        }
+  
+        .kotak:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(187, 35, 35, 0.1);
+        }
+  
+        #kotak1 {
+          grid-column: span 2;
+          background: linear-gradient(135deg, #d3d3d3 0%, #add8e6 100%); /* Warna abu-abu ke biru muda */
+          color: #2d3436;
+          text-align: center;
+          padding: 20px;
+          border-radius: 15px;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+  
+        #kotak2 { background: linear-gradient(120deg, #d3d3d3 0%, #87cefa 100%); } /* Abu-abu ke biru cerah */
+        #kotak3 { background: linear-gradient(120deg, #d3d3d3 0%, #b0e0e6 100%); } /* Abu-abu ke biru muda */
+        #kotak4 { background: linear-gradient(120deg, #a7a7a7 0%, #b0c4de 100%); } /* Abu-abu ke biru */
+  
+        .container {
+            width: 100%;
+            height: 100%;
+            color: #2d3436;
+        }
+  
+        .location-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            backdrop-filter: blur(5px);
+            margin-bottom: 15px;
+        }
+  
+        .location-box i {
+            font-size: 1.4em;
+            color: #2d3436;
+        }
+  
+        .location-text {
+            font-size: 1.1em;
+            font-weight: 500;
+        }
+  
+        .weather-box {
+            text-align: center;
+            margin: 15px 0;
+        }
+  
+        #weatherIcon {
+            font-size: 3.5em;
+            margin: 15px 0;
+            color: #2d3436;
+        }
+  
+        .temperature {
+            font-size: 2.2em;
+            font-weight: 700;
+            margin: 10px 0;
+            color: #2d3436;
+        }
+  
+        .description {
+            font-size: 1.1em;
+            margin-bottom: 20px;
+            color: #636e72;
+        }
+  
+        .weather-details {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+        }
+  
+        .humidity, .temp {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            flex: 1;
+        }
+  
+        .weather-details i {
+            font-size: 1.8em;
+        }
+  
+        .jarak {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            height: 100%;
+            padding: 15px;
+        }
+  
+        .jarak i {
+            font-size: 2.5em;
+            color: #2d3436;
+        }
+  
+        .jarak div {
+            text-align: center;
+        }
+  
+        .jarak span {
+            font-size: 1.8em;
+            font-weight: 600;
+            display: block;
+            margin-bottom: 5px;
+        }
+  
+        .switch-container {
+            padding: 10px;
+            width: 95%;
+        }
+  
+        .switch-wrapper {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 10px 0;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+        }
+  
+        .switch-label {
+            font-size: 1.1em;
+            font-weight: 500;
+        }
+  
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+  
+        .checkbox-wrapper-22 .switch {
+            display: inline-block;
+            height: 34px;
+            position: relative;
+            width: 60px;
+        }
+
+        .checkbox-wrapper-22 .switch input {
+            display:none;
+        }
+
+        .checkbox-wrapper-22 .slider {
+            background-color: #ccc;
+            bottom: 0;
+            cursor: pointer;
+            left: 0;
+            position: absolute;
+            right: 0;
+            top: 0;
+            transition: .4s;
+        }
+
+        .checkbox-wrapper-22 .slider:before {
+            background-color: #fff;
+            bottom: 4px;
+            content: "";
+            height: 26px;
+            left: 4px;
+            position: absolute;
+            transition: .4s;
+            width: 26px;
+        }
+
+        .checkbox-wrapper-22 input:checked + .slider {   
+            background-color: #6684bb;
+        }
+
+        .checkbox-wrapper-22 input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        .checkbox-wrapper-22 .slider.round {
+            border-radius: 34px;
+        }
+
+        .checkbox-wrapper-22 .slider.round:before {
+            border-radius: 50%;
+        }
+
+        @media (max-width: 480px) {
+            .bento-box {
+                grid-template-columns: 1fr;
+                padding: 15px;
+            }
+            
+            #kotak1 {
+                grid-column: span 1;
+                font-size: 1.2em;
+            }
+            
+            .weather-details {
+                flex-direction: column;
+            }
+            
+            .temperature {
+                font-size: 1.8em;
+            }
+            
+            #weatherIcon {
+                font-size: 2.5em;
+            }
+        }
+    </style>
+</head> 
+<body>
+    <div class="bento-box">
+        <div class="kotak" id="kotak1">
+            <h2 style="margin: 0; font-size: 1.6em; font-weight: bold; color:  #5d6594;">Projek Ujikom</h2>
+            <p style="margin: 5px 0; font-size: 1.1em; color: #fff;">Salva Azzahra Munawar - K4</p>
+        </div>
+        <div class="kotak" id="kotak2">
+          <div class="container">
+            <div class="location-box">
+              <i class="bi bi-geo-alt"></i>
+              <span class="location-text">Coblong, Bandung</span>
+          </div>
+  
+          <div class="weather-box">
+              <i id="weatherIcon" class="bi bi-cloudy"></i>
+              <p class="temperature" id="tempID">0°C</p>
+              <p class="description" id="conditionID">-</p>
+          </div>
+  
+          <div class="weather-details">
+            <div class="temp">
+                <i class="bi bi-thermometer"></i>
+                  <div>
+                      <span id="tempValueID">0°C</span>
+                      <p>Suhu</p>
+                  </div>
+              </div>
+              <div class="humidity">
+                  <i class="bi bi-water"></i>
+                  <div>
+                      <span id="humidityID">0%</span>
+                      <p>Kelembapan</p>
+                  </div>
+              </div>
+          </div>
+          </div>
+        </div>
+        <div class="kotak" id="kotak3">
+          <div class="jarak">
+            <i class="bi bi-rulers"></i>
+            <div>
+                <span id="jarakID">0 cm</span>
+                <p>Jarak</p>
+            </div>
+        </div>
+        <div class="kotak" id="kotak4">
+            <div class="checkbox-wrapper-22">
+                <div class="switch-wrapper">
+                    <span class="switch-label">LED 1</span>
+                    <label class="switch">
+                        <input type="checkbox" id="checkbox1" onclick="toggleLED()">
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+                <div class="switch-wrapper">
+                    <span class="switch-label">LED 2</span>
+                    <label class="switch">
+                        <input type="checkbox" id="checkbox2" onclick="toggleLED()">
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+                <div class="switch-wrapper">
+                    <span class="switch-label">LED 3</span>
+                    <label class="switch">
+                        <input type="checkbox" id="checkbox3" onclick="toggleLED()">
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+  import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyC08kSShenjCVWGHGNc3mIk_J-iYRD7KDU",
+    authDomain: "ukk-02-01-0116-122-8.firebaseapp.com",
+    databaseURL: "https://ukk-02-01-0116-122-8-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "ukk-02-01-0116-122-8",
+    storageBucket: "ukk-02-01-0116-122-8.firebasestorage.app",
+    messagingSenderId: "733553310435",
+    appId: "1:733553310435:web:6ce6021b288a9d009ca3d6"
+  };
+
+   //inisialisasi firebase
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+  const LedRef = ref(db, 'dataLED');
+  const DhtRef = ref(db, 'dataDHT');
+  const UsRef = ref(db, 'dataUltrasonik');
+
+  let barTempValue = 30;
+  let temperature = 25; //var suhu
+  let humidity = 90; //var kelembapan
+
+  //fungsi untuk mengganti tulisan kondisi bdsr var
+  function updateWeatherCondition(tempValue) {
+      const conditionElement = document.getElementById("conditionID");
+      if (tempValue < 20) { 
+          conditionElement.textContent = "Dingin";
+      } else if (tempValue >= 20 && tempValue <= 30) {
+          conditionElement.textContent = "Sedang";
+      } else if (tempValue > 30) {
+          conditionElement.textContent = "Panas";
+      } else {
+          conditionElement.textContent = "Error";
+      }
+  }
+
+  //fungsi untuk update tulisan temp & humid
+  function updateWeatherInfo(tempValue, humidityValue) {
+    const temperatureElement = document.getElementById("tempID");
+    const humidityElement = document.getElementById("humidityID");
+    const weatherIconElement = document.getElementById("weatherIcon");
+    const tempValueElement = document.getElementById("tempValueID");
+
+    temperatureElement.innerHTML = `<span>${tempValue}&deg;C</span>`;
+    humidityElement.textContent = `${humidityValue}%`;
+    tempValueElement.textContent = `${tempValue}°`;
+
+    // Ganti ikon berdasarkan kelembapan
+    let iconClass = "bi bi-cloud"; // default
+    if (humidityValue >= 0 && humidityValue <= 25) {
+        iconClass = "bi bi-sun";
+    } else if (humidityValue > 25 && humidityValue <= 50) {
+        iconClass = "bi bi-cloud-sun";
+    } else if (humidityValue > 51 && humidityValue <= 75) {
+        iconClass = "bi bi-cloud-drizzle";
+    } else if (humidityValue > 75) {
+        iconClass = "bi bi-cloud-rain";
+    }
+
+    // Perbaikan di sini:
+    weatherIconElement.className = iconClass;
+
+    // Update kondisi cuaca
+    updateWeatherCondition(tempValue);
+}
+
+
+  //ambil data dht dari firebase
+  onValue(DhtRef, (snapshot) => {
+      if (snapshot.exists()){
+          const data = snapshot.val();
+          const temperature = data.temperatur;
+          const humidity = data.humid;
+
+          updateWeatherInfo(temperature, humidity); // Panggil fungsi untuk update info cuaca
+
+          console.log("temperatur update:", temperature);
+          console.log("humidity update:", humidity);
+      } else {
+          console.log("dht data not found");
+      }
+  }, (error) => {
+      console.error("dht data error");
+  } 
+);
+
+  //ambil ultrasonik
+  onValue(UsRef, (snapshot) => {
+  try {
+      if (snapshot.exists()) {
+          const data = snapshot.val();
+          const jarak = data.jarak || 0; // Asumsi data disimpan di field "jarak"
+          
+          // Update tampilan jarak
+          document.getElementById('jarakID').textContent = `${jarak} cm`;
+         
+      } else {
+          console.log("Data ultrasonik tidak ditemukan");
+      }
+  } catch (error) {
+      console.error("Error membaca data ultrasonik:", error);
+  }
+});
+
+  //ambil data led
+  onValue(LedRef, (snapshot) => {
+      if (snapshot.exists()){
+          const led = snapshot.val();
+          Object.keys(led).forEach((key, index) => {
+              document.getElementById(`checkbox${index + 1}`).checked = led[key] === 1;
+          });
+          console.log("LED Status Updated:", Object.values(led));
+      }
+  });
+
+  updateWeatherInfo(temperature, humidity);
+
+  window.toggleLED = () => {
+      const ledState = [1, 2, 3].map(i => document.getElementById(`checkbox${i}`).checked ? 1 : 0);
+      set(LedRef, {
+          led1: ledState[0],
+          led2: ledState[1],
+          led3: ledState[2]
+      }).then(() => console.log("led state updated"))
+      .catch(() => console.log("failed to update"));
+  }
+</script>
+</html>
